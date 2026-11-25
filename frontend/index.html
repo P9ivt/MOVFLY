@@ -1,715 +1,520 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MOFLVFLY — منصة البث السينمائي</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <title>MOFLVFLY — منصة البث والإضافات المباشرة</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --primary: #9303C5;
-      --bg-dark: #02060E;
-    }
-
-    * {
-      box-sizing: border-box;
-      font-family: 'Cairo', sans-serif;
-    }
-
     body {
-      background-color: var(--bg-dark);
-      color: #ffffff;
-      margin: 0;
-      padding-bottom: 110px;
-      overflow-x: hidden;
-      background-image: 
-        radial-gradient(circle at 15% 10%, rgba(147, 3, 197, 0.18) 0%, transparent 45%),
-        radial-gradient(circle at 85% 60%, rgba(147, 3, 197, 0.12) 0%, transparent 50%);
+      font-family: 'Cairo', sans-serif;
+      background: radial-gradient(circle at top right, #9303C5 0%, #240747 32%, #02060E 78%);
+      background-attachment: fixed;
+      color: #F8FAFC;
+      min-height: 100vh;
     }
-
-    .brand-gradient {
-      background: linear-gradient(135deg, #9303C5 0%, #4b0266 55%, #02060E 100%);
+    .glass {
+      background: rgba(15, 10, 30, 0.55);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
-
-    .btn-gradient {
-      background: linear-gradient(135deg, #9303C5 0%, #68028c 100%);
-      box-shadow: 0 8px 25px rgba(147, 3, 197, 0.45);
-      transition: all 0.25s ease;
-    }
-
-    .btn-gradient:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(147, 3, 197, 0.65);
-    }
-
-    /* شريط التنقل العائم على شكل كبسولة بتأثير زجاجي Glassmorphism */
-    .glass-pill-navbar {
-      position: fixed;
-      bottom: 22px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 9999px;
-      background: rgba(14, 10, 24, 0.55);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+    .glass-pill {
+      background: rgba(20, 12, 42, 0.72);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
       border: 1px solid rgba(147, 3, 197, 0.45);
-      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-      z-index: 1000;
+      box-shadow: 0 10px 35px rgba(147, 3, 197, 0.25);
     }
-
-    .nav-pill-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 16px;
-      border-radius: 9999px;
-      color: rgba(255, 255, 255, 0.72);
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid transparent;
-    }
-
-    .nav-pill-item:hover {
-      color: #fff;
-      background: rgba(147, 3, 197, 0.2);
-    }
-
-    .nav-pill-item.active {
-      color: #fff;
-      background: linear-gradient(135deg, #9303C5, #530270);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      box-shadow: 0 4px 15px rgba(147, 3, 197, 0.5);
-    }
-
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    .top10-number {
-      font-size: 6.2rem;
-      font-weight: 900;
-      line-height: 0.85;
-      background: linear-gradient(180deg, #ffffff 15%, #9303C5 95%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.9));
-      user-select: none;
-    }
-
-    .hero-fade {
-      background: linear-gradient(to top, #02060E 8%, rgba(2, 6, 14, 0.65) 55%, rgba(2, 6, 14, 0.2) 100%);
-    }
-
-    .glass-card {
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(147, 3, 197, 0.25);
-    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #02060E; }
+    ::-webkit-scrollbar-thumb { background: #9303C5; border-radius: 999px; }
   </style>
 </head>
-<body>
+<body class="pb-24">
 
-  <!-- الشريط العلوي -->
-  <header class="sticky top-0 z-40 px-4 py-3 flex items-center justify-between bg-[#02060E]/80 backdrop-blur-md border-b border-[#9303C5]/20">
-    <div id="brandLogo" class="flex items-center gap-2 cursor-pointer select-none" title="MOFLVFLY">
-      <div class="w-9 h-9 rounded-xl btn-gradient flex items-center justify-center font-black text-lg">M</div>
-      <span class="text-xl font-black tracking-wider bg-gradient-to-l from-white via-purple-200 to-[#9303C5] bg-clip-text text-transparent">
+  <!-- Floating Glassmorphism Pill Navbar -->
+  <header class="sticky top-4 z-40 px-4">
+    <nav class="glass-pill max-w-5xl mx-auto rounded-full px-5 py-3 flex items-center justify-between gap-3">
+      <button id="brandLogo" class="flex items-center gap-2 text-xl font-black tracking-wider bg-gradient-to-l from-fuchsia-400 via-purple-300 to-white bg-clip-text text-transparent select-none">
+        <span class="w-3 h-3 rounded-full bg-fuchsia-500 animate-pulse"></span>
         MOFLVFLY
-      </span>
-    </div>
+      </button>
 
-    <div class="hidden md:flex items-center gap-2 bg-white/5 p-1 rounded-full border border-white/10">
-      <button onclick="filterCategory('all')" class="cat-btn active px-4 py-1.5 rounded-full text-sm font-bold bg-[#9303C5] text-white" data-cat="all">الكل</button>
-      <button onclick="filterCategory('movie')" class="cat-btn px-4 py-1.5 rounded-full text-sm font-bold text-gray-300 hover:text-white" data-cat="movie">أفلام</button>
-      <button onclick="filterCategory('tv')" class="cat-btn px-4 py-1.5 rounded-full text-sm font-bold text-gray-300 hover:text-white" data-cat="tv">مسلسلات</button>
-      <button onclick="filterCategory('anime')" class="cat-btn px-4 py-1.5 rounded-full text-sm font-bold text-gray-300 hover:text-white" data-cat="anime">أنمي</button>
-    </div>
+      <div class="hidden md:flex items-center gap-2 text-sm font-semibold">
+        <button onclick="switchTab('catalog')" id="nav-catalog" class="tab-btn px-4 py-1.5 rounded-full bg-purple-600/40 text-white transition">المكتبة</button>
+        <button onclick="switchTab('repos')" id="nav-repos" class="tab-btn px-4 py-1.5 rounded-full text-slate-300 hover:text-white transition">الإضافات (Repos)</button>
+        <button onclick="switchTab('favorites')" id="nav-favorites" class="tab-btn px-4 py-1.5 rounded-full text-slate-300 hover:text-white transition">المفضلة</button>
+      </div>
 
-    <div class="flex items-center gap-2">
-      <span id="repoStatusBadge" class="text-xs px-3 py-1 rounded-full bg-[#9303C5]/20 border border-[#9303C5]/40 text-purple-200">
-        متصل بالمستودع
-      </span>
-    </div>
+      <div class="flex items-center gap-2">
+        <input id="searchInput" type="text" placeholder="ابحث عن فيلم، مسلسل، أو إضافة..."
+          class="bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-fuchsia-500 w-40 sm:w-60" />
+        <button onclick="openRepoModal()" class="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#9303C5] to-indigo-600 text-xs sm:text-sm font-bold hover:opacity-90 transition whitespace-nowrap">
+          + إضافة مستودع
+        </button>
+      </div>
+    </nav>
   </header>
 
-  <!-- تصنيفات الهواتف -->
-  <div class="flex md:hidden items-center gap-2 px-4 pt-3 overflow-x-auto no-scrollbar">
-    <button onclick="filterCategory('all')" class="cat-btn active shrink-0 px-4 py-1.5 rounded-full text-xs font-bold bg-[#9303C5] text-white" data-cat="all">الكل</button>
-    <button onclick="filterCategory('movie')" class="cat-btn shrink-0 px-4 py-1.5 rounded-full text-xs font-bold bg-white/5 text-gray-300" data-cat="movie">أفلام</button>
-    <button onclick="filterCategory('tv')" class="cat-btn shrink-0 px-4 py-1.5 rounded-full text-xs font-bold bg-white/5 text-gray-300" data-cat="tv">مسلسلات</button>
-    <button onclick="filterCategory('anime')" class="cat-btn shrink-0 px-4 py-1.5 rounded-full text-xs font-bold bg-white/5 text-gray-300" data-cat="anime">أنمي</button>
-  </div>
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 mt-8 space-y-8">
 
-  <!-- 1. الصفحة الرئيسية -->
-  <main id="homeView" class="max-w-7xl mx-auto px-4 pt-4 space-y-8">
-    <section>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg md:text-xl font-extrabold flex items-center gap-2">
-          <span class="w-2 h-6 rounded-full bg-[#9303C5]"></span>
-          أفضل 10 أعمال اليوم
-        </h2>
-        <span class="text-xs text-purple-300">تحديث مستمر</span>
+    <!-- Status Banner -->
+    <section class="glass rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/20 border border-fuchsia-400/30 text-xs text-fuchsia-300 mb-2">
+          <span>وضع التشغيل المباشر في المتصفح — بدون خادم وسيط</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black">أضف مستودعك وشاهد المحتوى مباشرة</h1>
+        <p class="text-slate-300 text-sm mt-1">يتم جلب الإضافات وحفظها في متصفحك مباشرة، مع إمكانية دمج بيانات TMDB وتشغيل روابط البث والترجمة.</p>
       </div>
-      <div id="top10Container" class="flex gap-5 overflow-x-auto no-scrollbar pb-3 pt-2"></div>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="installDefaultRepo()" class="px-4 py-2.5 rounded-2xl bg-fuchsia-600 hover:bg-fuchsia-500 text-sm font-bold transition shadow-lg shadow-fuchsia-900/40">
+          تفعيل إضافة cs-ar العربية
+        </button>
+        <button onclick="openCustomStreamModal()" class="px-4 py-2.5 rounded-2xl glass hover:bg-white/10 text-sm font-semibold transition">
+          تشغيل رابط بث مباشر
+        </button>
+      </div>
     </section>
 
-    <section>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg md:text-xl font-extrabold flex items-center gap-2">
-          <span class="w-2 h-6 rounded-full bg-[#9303C5]"></span>
-          مختارات MOFLVFLY
+    <!-- Mobile Tabs -->
+    <div class="flex md:hidden justify-center gap-2 text-xs font-bold">
+      <button onclick="switchTab('catalog')" class="px-4 py-2 rounded-full glass">المكتبة</button>
+      <button onclick="switchTab('repos')" class="px-4 py-2 rounded-full glass">الإضافات</button>
+      <button onclick="switchTab('favorites')" class="px-4 py-2 rounded-full glass">المفضلة</button>
+    </div>
+
+    <!-- Section: Catalog (Movies / Series / Extracted Items) -->
+    <section id="section-catalog" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold flex items-center gap-2">
+          <span class="w-2 h-6 rounded-full bg-fuchsia-500"></span>
+          الأفلام والمسلسلات والمصادر
         </h2>
+        <span id="catalogCount" class="text-xs text-slate-400"></span>
       </div>
-      <div id="featuredGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
+      <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
     </section>
+
+    <!-- Section: Repos & Plugins -->
+    <section id="section-repos" class="hidden space-y-4">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h2 class="text-xl font-bold flex items-center gap-2">
+          <span class="w-2 h-6 rounded-full bg-purple-400"></span>
+          الإضافات المستوردة من المستودعات
+        </h2>
+        <span id="pluginCount" class="text-xs text-slate-400"></span>
+      </div>
+
+      <!-- Active Repo Info -->
+      <div id="activeReposList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+
+      <!-- Plugins Grid -->
+      <div id="pluginsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4"></div>
+    </section>
+
+    <!-- Section: Favorites -->
+    <section id="section-favorites" class="hidden space-y-4">
+      <h2 class="text-xl font-bold flex items-center gap-2">
+        <span class="w-2 h-6 rounded-full bg-pink-500"></span>
+        المفضلة المحفوظة في متصفحك
+      </h2>
+      <div id="favoritesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+    </section>
+
   </main>
 
-  <!-- 2. صفحة البحث -->
-  <section id="searchView" class="hidden max-w-5xl mx-auto px-4 pt-6 space-y-6">
-    <div class="relative">
-      <input id="searchInput" type="text" placeholder="ابحث عن فيلم، مسلسل، أو أنمي..." 
-             oninput="handleSearch(this.value)"
-             class="w-full px-5 py-4 rounded-2xl bg-white/5 border border-[#9303C5]/50 text-white placeholder-gray-400 focus:outline-none focus:border-[#9303C5] text-base" />
-    </div>
-    <div id="searchResultsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
-  </section>
-
-  <!-- 3. صفحة المفضلة -->
-  <section id="favoritesView" class="hidden max-w-6xl mx-auto px-4 pt-6 space-y-4">
-    <h2 class="text-xl font-extrabold">قائمتي المفضلة</h2>
-    <div id="favoritesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
-  </section>
-
-  <!-- 4. صفحة تفاصيل العمل والمشغل -->
-  <section id="detailsView" class="hidden fixed inset-0 z-50 bg-[#02060E] overflow-y-auto pb-28">
-    <div class="relative w-full h-[52vh] min-h-[340px]">
-      <img id="detailBackdrop" src="" alt="" class="w-full h-full object-cover" />
-      <div class="absolute inset-0 hero-fade"></div>
-      
-      <div class="absolute top-4 inset-x-4 flex justify-between items-center max-w-5xl mx-auto">
-        <button onclick="closeDetails()" class="w-11 h-11 rounded-full bg-black/45 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-[#9303C5]/50">
-          ➔
-        </button>
-        <button id="detailFavBtn" onclick="toggleFavoriteCurrent()" class="w-11 h-11 rounded-full bg-black/45 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-[#9303C5]/50">
-          ♥
+  <!-- Modal: Add Repo URL -->
+  <div id="repoModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass max-w-lg w-full rounded-3xl p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold">إضافة مستودع (Repo JSON)</h3>
+        <button onclick="closeModal('repoModal')" class="text-slate-400 hover:text-white text-xl">&times;</button>
+      </div>
+      <p class="text-xs text-slate-300">أدخل رابط ملف <code class="text-fuchsia-300">repo.json</code> وسيتم جلب جميع الإضافات الموجودة بداخله وتخزينها في متصفحك.</p>
+      <input id="repoUrlInput" type="url" value="https://raw.githubusercontent.com/mo7AmMeD64/cs-ar/main/repo/repo.json"
+        class="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-3 text-sm text-left ltr focus:outline-none focus:border-fuchsia-500" dir="ltr" />
+      <div class="space-y-1">
+        <label class="text-xs text-slate-400">مفتاح TMDB اختياري (لجلب البوسترات والبحث التلقائي):</label>
+        <input id="tmdbKeyInput" type="text" placeholder="أدخل مفتاح TMDB API هنا (اختياري)"
+          class="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-2.5 text-sm text-left focus:outline-none focus:border-fuchsia-500" dir="ltr" />
+      </div>
+      <div id="repoStatusMsg" class="text-xs text-fuchsia-300 hidden"></div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('repoModal')" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sm">إلغاء</button>
+        <button onclick="handleAddRepo()" id="addRepoBtn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-[#9303C5] to-indigo-600 text-sm font-bold">
+          جلب وتفعيل الإضافة
         </button>
       </div>
+    </div>
+  </div>
 
-      <div class="absolute bottom-4 inset-x-4 max-w-5xl mx-auto space-y-3">
-        <div class="flex items-center gap-2 text-xs font-bold">
-          <span id="detailRating" class="px-2.5 py-1 rounded-lg bg-[#9303C5] text-white">★ 8.8</span>
-          <span id="detailYear" class="px-2.5 py-1 rounded-lg bg-white/10">2026</span>
-          <span id="detailType" class="px-2.5 py-1 rounded-lg bg-white/10">مسلسل</span>
-        </div>
-        <h1 id="detailTitle" class="text-2xl md:text-4xl font-black"></h1>
-        
-        <div class="flex items-center gap-3 pt-1">
-          <button onclick="startPlayback()" class="btn-gradient flex-1 md:flex-none md:px-10 py-3.5 rounded-full font-extrabold text-base flex items-center justify-center gap-2">
-            <span>▶</span>
-            <span>مشاهدة الآن</span>
-          </button>
-        </div>
+  <!-- Modal: Add Custom Stream / Item -->
+  <div id="streamModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass max-w-lg w-full rounded-3xl p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold">إضافة فيلم أو رابط بث مباشر للمكتبة</h3>
+        <button onclick="closeModal('streamModal')" class="text-slate-400 hover:text-white text-xl">&times;</button>
+      </div>
+      <input id="itemTitleInput" type="text" placeholder="اسم الفيلم أو المسلسل" class="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-2.5 text-sm" />
+      <input id="itemPosterInput" type="url" placeholder="رابط صورة البوستر (اختياري)" dir="ltr" class="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-2.5 text-sm text-left" />
+      <input id="itemStreamInput" type="url" placeholder="رابط الفيديو المباشر (.m3u8 أو .mp4)" dir="ltr" class="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-2.5 text-sm text-left" />
+      <input id="itemSubInput" type="url" placeholder="رابط ملف الترجمة (.vtt أو .srt اختياري)" dir="ltr" class="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-2.5 text-sm text-left" />
+      <div class="flex justify-end gap-2">
+        <button onclick="closeModal('streamModal')" class="px-4 py-2 rounded-xl bg-white/5 text-sm">إلغاء</button>
+        <button onclick="saveCustomItem()" class="px-5 py-2 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 text-sm font-bold">حفظ وتشغيل</button>
       </div>
     </div>
+  </div>
 
-    <div class="max-w-5xl mx-auto px-4 pt-4 space-y-6">
-      <p id="detailOverview" class="text-gray-300 text-sm md:text-base leading-relaxed"></p>
-
-      <div id="playerBox" class="hidden space-y-3 glass-card p-3 rounded-2xl">
-        <div class="relative rounded-xl overflow-hidden bg-black aspect-video">
-          <video id="videoPlayer" controls playsinline crossorigin="anonymous" class="w-full h-full"></video>
-        </div>
-        <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
-          <div id="streamQualityBadges" class="flex flex-wrap gap-2"></div>
-          <div id="subtitleBadges" class="flex flex-wrap gap-2"></div>
-        </div>
+  <!-- Video Player Modal -->
+  <div id="playerModal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass max-w-4xl w-full rounded-3xl overflow-hidden">
+      <div class="px-5 py-3 flex items-center justify-between border-b border-white/10">
+        <h3 id="playerTitle" class="font-bold text-base truncate">مشغل MOFLVFLY</h3>
+        <button onclick="closePlayer()" class="px-3 py-1 rounded-full bg-white/10 hover:bg-red-500/40 text-sm">إغلاق &times;</button>
       </div>
-
-      <div id="episodesSection" class="hidden space-y-3">
-        <h3 class="font-bold text-lg">الحلقات المتوفرة</h3>
-        <div id="episodesList" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+      <div class="bg-black aspect-video relative">
+        <video id="videoPlayer" controls playsinline class="w-full h-full"></video>
       </div>
     </div>
-  </section>
-
-  <!-- 5. لوحة التحكم الخاصة بالمدير فقط -->
-  <section id="adminView" class="hidden fixed inset-0 z-50 bg-[#02060E] overflow-y-auto p-4 pb-28">
-    <div class="max-w-5xl mx-auto space-y-6">
-      <div class="flex items-center justify-between border-b border-[#9303C5]/30 pb-4">
-        <div>
-          <h2 class="text-2xl font-black text-white">لوحة تحكم المدير — MOFLVFLY</h2>
-          <p class="text-xs text-purple-300">إدارة الأفلام، المسلسلات، الترجمات، والتثبيت في الواجهة</p>
-        </div>
-        <button onclick="switchTab('home')" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold">
-          إغلاق اللوحة ✕
-        </button>
-      </div>
-
-      <div id="adminLoginBox" class="max-w-md mx-auto glass-card p-6 rounded-2xl space-y-4 mt-10">
-        <h3 class="text-lg font-bold text-center">تسجيل الدخول السري للمدير</h3>
-        <input id="adminSecretInput" type="password" placeholder="أدخل مفتاح المدير السري (ADMIN_SECRET_KEY)" 
-               class="w-full px-4 py-3 rounded-xl bg-black/50 border border-[#9303C5]/50 text-white focus:outline-none" />
-        <button onclick="adminLogin()" class="w-full btn-gradient py-3 rounded-xl font-bold">دخول لوحة التحكم</button>
-      </div>
-
-      <div id="adminDashboardContent" class="hidden space-y-8">
-        <div class="glass-card p-5 rounded-2xl space-y-4">
-          <h3 class="text-lg font-extrabold text-purple-300">➕ إضافة أو تعديل فيلم / مسلسل</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input id="admId" type="text" placeholder="معرّف العمل (اتركه فارغاً للإضافة الجديدة أو ضع ID للتعديل)" class="px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm" />
-            <input id="admTitle" type="text" placeholder="اسم الفيلم أو المسلسل *" class="px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm" />
-            <select id="admType" class="px-4 py-2.5 rounded-xl bg-black/80 border border-white/10 text-sm">
-              <option value="movie">فيلم (Movie)</option>
-              <option value="tv">مسلسل (TV Series)</option>
-              <option value="anime">أنمي (Anime)</option>
-            </select>
-            <input id="admRating" type="text" placeholder="التقييم (مثال: 9.1)" class="px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm" />
-            <input id="admPoster" type="url" placeholder="رابط صورة البوستر (Poster URL)" class="px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm" />
-            <input id="admBackdrop" type="url" placeholder="رابط صورة الغلاف العريضة (Backdrop URL)" class="px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm" />
-            <input id="admStreamUrl" type="url" placeholder="رابط البث المباشر (m3u8 أو mp4)" class="px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm" />
-            <input id="admSubUrl" type="url" placeholder="رابط ملف الترجمة العربية (.vtt أو .srt)" class="px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm" />
-          </div>
-          <textarea id="admOverview" rows="2" placeholder="قصة العمل..." class="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm"></textarea>
-          <div class="flex items-center gap-4">
-            <label class="flex items-center gap-2 text-sm cursor-pointer">
-              <input id="admPinTop10" type="checkbox" class="accent-[#9303C5] w-4 h-4" />
-              <span>تثبيت في قائمة Top 10 بالواجهة</span>
-            </label>
-            <button onclick="saveAdminItem()" class="btn-gradient px-6 py-2.5 rounded-xl font-bold text-sm">حفظ ونشر في الموقع</button>
-          </div>
-        </div>
-
-        <div class="glass-card p-5 rounded-2xl space-y-3">
-          <h3 class="text-lg font-extrabold text-purple-300">🔌 حالة مستودع الإضافات (CloudStream Repo)</h3>
-          <p class="text-xs text-gray-400 break-all">المصدر الرئيسي: https://raw.githubusercontent.com/mo7AmMeD64/cs-ar/main/repo/repo.json</p>
-          <div id="adminRepoPlugins" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-2"></div>
-        </div>
-
-        <div class="glass-card p-5 rounded-2xl space-y-3">
-          <h3 class="text-lg font-extrabold text-purple-300">🎬 إدارة المحتوى المنشور</h3>
-          <div id="adminItemsList" class="space-y-2"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- شريط التنقل العائم على شكل كبسولة (Glassmorphism) -->
-  <nav class="glass-pill-navbar" aria-label="التنقل الرئيسي">
-    <button onclick="switchTab('home')" class="nav-pill-item active" data-tab="home">
-      <span>🏠</span>
-      <span class="hidden sm:inline">الرئيسية</span>
-    </button>
-    <button onclick="switchTab('movies')" class="nav-pill-item" data-tab="movies">
-      <span>🎬</span>
-      <span class="hidden sm:inline">الأفلام</span>
-    </button>
-    <button onclick="switchTab('tv')" class="nav-pill-item" data-tab="tv">
-      <span>📺</span>
-      <span class="hidden sm:inline">المسلسلات</span>
-    </button>
-    <button onclick="switchTab('favorites')" class="nav-pill-item" data-tab="favorites">
-      <span>♥</span>
-      <span class="hidden sm:inline">المفضلة</span>
-    </button>
-    <button onclick="switchTab('search')" class="nav-pill-item" data-tab="search">
-      <span>🔍</span>
-      <span class="hidden sm:inline">البحث</span>
-    </button>
-  </nav>
+  </div>
 
   <script>
-    const API_BASE = 'http://localhost:3000/api';
+    const DEFAULT_REPO_URL = 'https://raw.githubusercontent.com/mo7AmMeD64/cs-ar/main/repo/repo.json';
 
-    const FALLBACK_CATALOG = [
+    const DEFAULT_ITEMS = [
       {
-        id: '101',
-        title: 'وينزداي — Wednesday',
-        type: 'tv',
-        rating: '8.8',
-        year: '2026',
-        poster: 'https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpMygczOkv.jpg',
-        backdrop: 'https://image.tmdb.org/t/p/original/iHSwvRVsRyxpX7FE7GbviaDvgGZ.jpg',
-        overview: 'تتابع وينزداي آدامز سنوات دراستها في أكاديمية نيفرمور، حيث تحاول إتقان قدراتها النفسية الناشئة وإحباط موجة قتل وحشية.',
-        streams: [{ label: '1080p HD', url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' }],
-        subtitles: []
-      },
-      {
-        id: '102',
-        title: 'كثيب: الجزء الثاني — Dune: Part Two',
-        type: 'movie',
-        rating: '8.6',
-        year: '2025',
-        poster: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
-        backdrop: 'https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg',
-        overview: 'يتحد بول أتريدس مع تشاني والفريمن بينما يسعى للانتقام من المتآمرين الذين دمروا عائلته.',
-        streams: [{ label: '1080p BluRay', url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' }],
-        subtitles: []
-      },
-      {
-        id: '103',
-        title: 'أشياء غريبة — Stranger Things',
-        type: 'tv',
-        rating: '9.0',
-        year: '2026',
-        poster: 'https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg',
-        backdrop: 'https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg',
-        overview: 'عندما يختفي صبي صغير، تكشف بلدة صغيرة عن لغز يتضمن تجارب سرية وقوى خارقة مرعبة.',
-        streams: [],
-        subtitles: []
+        id: 'demo-1',
+        title: 'عرض تجريبي — مشغل HLS عالي الجودة',
+        poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80',
+        streamUrl: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+        source: 'MOFLVFLY Demo',
+        rating: '8.9'
       }
     ];
 
-    let allItems = [];
-    let currentItem = null;
-    let favorites = JSON.parse(localStorage.getItem('moflvfly_favs') || '[]');
-    let adminSecret = sessionStorage.getItem('moflvfly_admin_key') || '';
-    let logoClicks = 0;
+    let state = {
+      repos: JSON.parse(localStorage.getItem('moflvfly_repos') || '[]'),
+      plugins: JSON.parse(localStorage.getItem('moflvfly_plugins') || '[]'),
+      items: JSON.parse(localStorage.getItem('moflvfly_items') || JSON.stringify(DEFAULT_ITEMS)),
+      favorites: JSON.parse(localStorage.getItem('moflvfly_favorites') || '[]'),
+      tmdbKey: localStorage.getItem('moflvfly_tmdb_key') || ''
+    };
 
-    document.getElementById('brandLogo').addEventListener('click', () => {
-      logoClicks++;
-      if (logoClicks >= 5) {
-        logoClicks = 0;
-        openAdminPanel();
-      }
-    });
+    let hlsInstance = null;
 
-    if (window.location.hash === '#admin') {
-      openAdminPanel();
-    }
-
-    async function initApp() {
-      try {
-        const res = await fetch(`${API_BASE}/catalog`);
-        const data = await res.json();
-        if (data.success && data.items.length > 0) {
-          allItems = data.items;
-        } else {
-          allItems = FALLBACK_CATALOG;
-        }
-      } catch (e) {
-        allItems = FALLBACK_CATALOG;
-        document.getElementById('repoStatusBadge').textContent = 'وضع المعاينة المحلي';
-      }
-      renderHome(allItems);
-    }
-
-    function renderHome(items) {
-      const top10El = document.getElementById('top10Container');
-      top10El.innerHTML = items.slice(0, 10).map((item, idx) => `
-        <div onclick="openDetails('${item.id}')" class="shrink-0 flex items-end cursor-pointer group relative pr-6">
-          <span class="top10-number absolute right-0 bottom-1 z-10">${idx + 1}</span>
-          <div class="w-36 md:w-44 h-52 md:h-64 rounded-2xl overflow-hidden border border-[#9303C5]/30 shadow-lg relative z-0 group-hover:scale-105 transition">
-            <img src="${item.poster}" alt="${item.title}" class="w-full h-full object-cover" />
-            <span class="absolute top-2 left-2 px-2 py-0.5 rounded-md text-xs font-extrabold bg-[#9303C5] text-white">★ ${item.rating}</span>
-          </div>
-        </div>
-      `).join('');
-
-      const gridEl = document.getElementById('featuredGrid');
-      gridEl.innerHTML = items.map(item => createCardHTML(item)).join('');
-    }
-
-    function createCardHTML(item) {
-      return `
-        <div onclick="openDetails('${item.id}')" class="group cursor-pointer space-y-2">
-          <div class="relative aspect-[2/3] rounded-2xl overflow-hidden border border-white/10 group-hover:border-[#9303C5] transition">
-            <img src="${item.poster}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-            <span class="absolute top-2 left-2 px-2 py-0.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-[#9303C5] to-purple-800 text-white shadow">
-              ★ ${item.rating}
-            </span>
-          </div>
-          <h3 class="text-sm font-bold truncate group-hover:text-purple-300">${item.title}</h3>
-        </div>
-      `;
+    function saveState() {
+      localStorage.setItem('moflvfly_repos', JSON.stringify(state.repos));
+      localStorage.setItem('moflvfly_plugins', JSON.stringify(state.plugins));
+      localStorage.setItem('moflvfly_items', JSON.stringify(state.items));
+      localStorage.setItem('moflvfly_favorites', JSON.stringify(state.favorites));
+      localStorage.setItem('moflvfly_tmdb_key', state.tmdbKey);
     }
 
     function switchTab(tab) {
-      document.querySelectorAll('.nav-pill-item').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tab);
+      ['catalog', 'repos', 'favorites'].forEach(t => {
+        document.getElementById(`section-${t}`).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById(`nav-${t}`);
+        if (btn) {
+          btn.className = t === tab
+            ? 'tab-btn px-4 py-1.5 rounded-full bg-purple-600/40 text-white transition'
+            : 'tab-btn px-4 py-1.5 rounded-full text-slate-300 hover:text-white transition';
+        }
       });
-
-      document.getElementById('homeView').classList.add('hidden');
-      document.getElementById('searchView').classList.add('hidden');
-      document.getElementById('favoritesView').classList.add('hidden');
-      document.getElementById('adminView').classList.add('hidden');
-
-      if (tab === 'home') {
-        document.getElementById('homeView').classList.remove('hidden');
-        renderHome(allItems);
-      } else if (tab === 'movies') {
-        document.getElementById('homeView').classList.remove('hidden');
-        renderHome(allItems.filter(i => i.type === 'movie'));
-      } else if (tab === 'tv') {
-        document.getElementById('homeView').classList.remove('hidden');
-        renderHome(allItems.filter(i => i.type === 'tv'));
-      } else if (tab === 'search') {
-        document.getElementById('searchView').classList.remove('hidden');
-        document.getElementById('searchInput').focus();
-      } else if (tab === 'favorites') {
-        document.getElementById('favoritesView').classList.remove('hidden');
-        const favItems = allItems.filter(i => favorites.includes(String(i.id)));
-        document.getElementById('favoritesGrid').innerHTML = favItems.length
-          ? favItems.map(createCardHTML).join('')
-          : '<p class="text-gray-400 col-span-full">لا توجد أعمال في المفضلة بعد.</p>';
-      }
     }
 
-    function filterCategory(cat) {
-      document.querySelectorAll('.cat-btn').forEach(b => {
-        const isAct = b.dataset.cat === cat;
-        b.classList.toggle('bg-[#9303C5]', isAct);
-        b.classList.toggle('text-white', isAct);
-      });
-      if (cat === 'all') renderHome(allItems);
-      else renderHome(allItems.filter(i => i.type === cat));
+    function openRepoModal() {
+      document.getElementById('tmdbKeyInput').value = state.tmdbKey;
+      document.getElementById('repoModal').classList.remove('hidden');
     }
 
-    function handleSearch(query) {
-      const q = query.trim().toLowerCase();
-      const filtered = allItems.filter(i => i.title.toLowerCase().includes(q));
-      document.getElementById('searchResultsGrid').innerHTML = filtered.map(createCardHTML).join('');
+    function openCustomStreamModal() {
+      document.getElementById('streamModal').classList.remove('hidden');
     }
 
-    async function openDetails(id) {
-      currentItem = allItems.find(i => String(i.id) === String(id));
-      if (!currentItem) return;
-
-      document.getElementById('detailBackdrop').src = currentItem.backdrop || currentItem.poster;
-      document.getElementById('detailTitle').textContent = currentItem.title;
-      document.getElementById('detailRating').textContent = `★ ${currentItem.rating}`;
-      document.getElementById('detailYear').textContent = currentItem.year || '2026';
-      document.getElementById('detailType').textContent = currentItem.type === 'tv' ? 'مسلسل' : 'فيلم';
-      document.getElementById('detailOverview').textContent = currentItem.overview;
-      document.getElementById('playerBox').classList.add('hidden');
-
-      document.getElementById('detailsView').classList.remove('hidden');
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
     }
 
-    function closeDetails() {
-      const video = document.getElementById('videoPlayer');
-      video.pause();
-      video.src = '';
-      document.getElementById('detailsView').classList.add('hidden');
+    async function installDefaultRepo() {
+      document.getElementById('repoUrlInput').value = DEFAULT_REPO_URL;
+      openRepoModal();
+      await handleAddRepo();
     }
 
-    function toggleFavoriteCurrent() {
-      if (!currentItem) return;
-      const id = String(currentItem.id);
-      if (favorites.includes(id)) {
-        favorites = favorites.filter(f => f !== id);
-      } else {
-        favorites.push(id);
-      }
-      localStorage.setItem('moflvfly_favs', JSON.stringify(favorites));
-      alert('تم تحديث قائمة المفضلة');
-    }
+    async function handleAddRepo() {
+      const url = document.getElementById('repoUrlInput').value.trim();
+      const tmdbKey = document.getElementById('tmdbKeyInput').value.trim();
+      const statusEl = document.getElementById('repoStatusMsg');
+      const btn = document.getElementById('addRepoBtn');
 
-    async function startPlayback() {
-      if (!currentItem) return;
-      const playerBox = document.getElementById('playerBox');
-      const video = document.getElementById('videoPlayer');
-      playerBox.classList.remove('hidden');
+      if (!url) return;
+      if (tmdbKey) state.tmdbKey = tmdbKey;
 
-      let streams = currentItem.streams || [];
-      let subtitles = currentItem.subtitles || [];
+      statusEl.classList.remove('hidden');
+      statusEl.textContent = 'جاري الاتصال بالمستودع وجلب الإضافات...';
+      btn.disabled = true;
 
       try {
-        const res = await fetch(`${API_BASE}/stream/${currentItem.id}`);
-        const data = await res.json();
-        if (data.streams && data.streams.length) streams = data.streams;
-        if (data.subtitles && data.subtitles.length) subtitles = data.subtitles;
-      } catch (e) {}
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('تعذر الوصول إلى رابط المستودع');
+        const repoData = await res.json();
 
-      if (!streams.length) {
-        alert('لا يوجد رابط بث مضاف لهذا العمل حالياً. أضف رابطاً من لوحة التحكم.');
+        const repoEntry = {
+          url,
+          name: repoData.name || 'مستودع إضافات',
+          description: repoData.description || '',
+          addedAt: new Date().toLocaleDateString('ar-IQ')
+        };
+
+        state.repos = [repoEntry, ...state.repos.filter(r => r.url !== url)];
+
+        const pluginLists = Array.isArray(repoData.pluginLists) ? repoData.pluginLists : [];
+        let extractedPlugins = [];
+
+        for (const listUrl of pluginLists) {
+          try {
+            const pRes = await fetch(listUrl);
+            if (pRes.ok) {
+              const pData = await pRes.json();
+              if (Array.isArray(pData)) {
+                extractedPlugins.push(...pData.map(p => ({ ...p, repoName: repoEntry.name })));
+              }
+            }
+          } catch (e) {
+            console.warn('تخطي قائمة إضافات:', listUrl);
+          }
+        }
+
+        // دمج الإضافات الجديدة بدون تكرار
+        const existingNames = new Set(state.plugins.map(p => p.internalName || p.name));
+        extractedPlugins.forEach(p => {
+          const key = p.internalName || p.name;
+          if (!existingNames.has(key)) {
+            state.plugins.push(p);
+            existingNames.add(key);
+          }
+        });
+
+        // جلب أعمال رائجة من TMDB إذا أدخل المستخدم مفتاحاً
+        if (state.tmdbKey) {
+          await fetchTmdbTrending();
+        }
+
+        saveState();
+        renderAll();
+        statusEl.textContent = `تم تفعيل المستودع بنجاح! (${extractedPlugins.length} إضافة)`;
+        setTimeout(() => {
+          closeModal('repoModal');
+          switchTab('repos');
+        }, 900);
+      } catch (err) {
+        statusEl.textContent = `حدث خطأ: ${err.message}`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function fetchTmdbTrending() {
+      if (!state.tmdbKey) return;
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/trending/all/week?api_key=${state.tmdbKey}&language=ar`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const tmdbItems = (data.results || []).slice(0, 15).map(m => ({
+          id: `tmdb-${m.id}`,
+          title: m.title || m.name,
+          poster: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : '',
+          streamUrl: '',
+          source: 'TMDB + الإضافات',
+          rating: m.vote_average ? m.vote_average.toFixed(1) : '7.5',
+          overview: m.overview || ''
+        }));
+        const nonTmdb = state.items.filter(i => !String(i.id).startsWith('tmdb-'));
+        state.items = [...nonTmdb, ...tmdbItems];
+      } catch (e) {
+        console.warn('TMDB fetch skipped');
+      }
+    }
+
+    function saveCustomItem() {
+      const title = document.getElementById('itemTitleInput').value.trim();
+      const poster = document.getElementById('itemPosterInput').value.trim();
+      const streamUrl = document.getElementById('itemStreamInput').value.trim();
+      const subUrl = document.getElementById('itemSubInput').value.trim();
+
+      if (!title || !streamUrl) return alert('يرجى إدخال اسم العمل ورابط البث المباشر');
+
+      const newItem = {
+        id: 'custom-' + Date.now(),
+        title,
+        poster: poster || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80',
+        streamUrl,
+        subUrl,
+        source: 'إضافة يدوية',
+        rating: 'HD'
+      };
+
+      state.items.unshift(newItem);
+      saveState();
+      renderAll();
+      closeModal('streamModal');
+      playMedia(newItem.id);
+    }
+
+    function toggleFavorite(id) {
+      if (state.favorites.includes(id)) {
+        state.favorites = state.favorites.filter(f => f !== id);
+      } else {
+        state.favorites.push(id);
+      }
+      saveState();
+      renderAll();
+    }
+
+    function playMedia(id) {
+      const item = state.items.find(i => i.id === id);
+      if (!item) return;
+
+      if (!item.streamUrl) {
+        alert(`"${item.title}" متاح في الكتالوج. لإضافة رابط بث مباشر له، اضغط على "تشغيل رابط بث مباشر" وألصق رابط الفيديو.`);
         return;
       }
 
-      const streamUrl = streams[0].url;
-      if (Hls.isSupported() && streamUrl.includes('.m3u8')) {
-        const hls = new Hls();
-        hls.loadSource(streamUrl);
-        hls.attachMedia(video);
-      } else {
-        video.src = streamUrl;
-      }
+      document.getElementById('playerTitle').textContent = item.title;
+      document.getElementById('playerModal').classList.remove('hidden');
 
+      const video = document.getElementById('videoPlayer');
       video.innerHTML = '';
-      for (const sub of subtitles) {
+
+      if (item.subUrl) {
         const track = document.createElement('track');
         track.kind = 'subtitles';
-        track.label = sub.label || 'العربية';
+        track.label = 'العربية';
         track.srclang = 'ar';
+        track.src = item.subUrl;
         track.default = true;
-        track.src = sub.url.endsWith('.srt') ? await convertSrtToVttUrl(sub.url) : sub.url;
         video.appendChild(track);
       }
 
-      video.play();
-    }
+      if (hlsInstance) {
+        hlsInstance.destroy();
+        hlsInstance = null;
+      }
 
-    async function convertSrtToVttUrl(srtUrl) {
-      try {
-        const res = await fetch(srtUrl);
-        const srtText = await res.text();
-        const vttText = 'WEBVTT\n\n' + srtText.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
-        const blob = new Blob([vttText], { type: 'text/vtt' });
-        return URL.createObjectURL(blob);
-      } catch (e) {
-        return srtUrl;
+      if (item.streamUrl.includes('.m3u8') && Hls.isSupported()) {
+        hlsInstance = new Hls();
+        hlsInstance.loadSource(item.streamUrl);
+        hlsInstance.attachMedia(video);
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+      } else {
+        video.src = item.streamUrl;
+        video.play();
       }
     }
 
-    function openAdminPanel() {
-      document.getElementById('adminView').classList.remove('hidden');
-      if (adminSecret) {
-        document.getElementById('adminLoginBox').classList.add('hidden');
-        document.getElementById('adminDashboardContent').classList.remove('hidden');
-        loadAdminData();
+    function closePlayer() {
+      const video = document.getElementById('videoPlayer');
+      video.pause();
+      video.removeAttribute('src');
+      if (hlsInstance) {
+        hlsInstance.destroy();
+        hlsInstance = null;
       }
+      closeModal('playerModal');
     }
 
-    async function adminLogin() {
-      const secret = document.getElementById('adminSecretInput').value.trim();
-      if (!secret) return;
-      try {
-        const res = await fetch(`${API_BASE}/admin/login`, {
-          method: 'POST',
-          headers: { 'x-admin-secret': secret }
-        });
-        if (res.ok) {
-          adminSecret = secret;
-          sessionStorage.setItem('moflvfly_admin_key', secret);
-          document.getElementById('adminLoginBox').classList.add('hidden');
-          document.getElementById('adminDashboardContent').classList.remove('hidden');
-          loadAdminData();
-        } else {
-          alert('مفتاح المدير غير صحيح!');
-        }
-      } catch (e) {
-        adminSecret = secret;
-        document.getElementById('adminLoginBox').classList.add('hidden');
-        document.getElementById('adminDashboardContent').classList.remove('hidden');
-        loadAdminData();
-      }
+    function removeRepo(url) {
+      state.repos = state.repos.filter(r => r.url !== url);
+      if (state.repos.length === 0) state.plugins = [];
+      saveState();
+      renderAll();
     }
 
-    async function loadAdminData() {
-      const listEl = document.getElementById('adminItemsList');
-      listEl.innerHTML = allItems.map(item => `
-        <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
-          <div class="flex items-center gap-3">
-            <img src="${item.poster}" class="w-10 h-14 rounded-lg object-cover" />
-            <div>
-              <p class="font-bold text-sm">${item.title}</p>
-              <p class="text-xs text-gray-400">ID: ${item.id} | ${item.type}</p>
+    function renderAll() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      // Render Catalog
+      const filteredItems = state.items.filter(i => i.title.toLowerCase().includes(query));
+      document.getElementById('catalogCount').textContent = `${filteredItems.length} عنصر`;
+      document.getElementById('catalogGrid').innerHTML = filteredItems.map(item => {
+        const isFav = state.favorites.includes(item.id);
+        return `
+          <div class="glass rounded-2xl overflow-hidden group flex flex-col justify-between hover:border-fuchsia-500/60 transition">
+            <div class="relative aspect-[2/3] bg-slate-900 overflow-hidden">
+              <img src="${item.poster || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80'}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+              <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/70 text-[11px] font-bold text-amber-400">★ ${item.rating || 'HD'}</span>
+              <button onclick="toggleFavorite('${item.id}')" class="absolute top-2 left-2 w-8 h-8 rounded-full bg-black/60 flex items-center justify-center text-sm ${isFav ? 'text-pink-500' : 'text-white'}">♥</button>
+            </div>
+            <div class="p-3 space-y-2">
+              <h3 class="font-bold text-sm line-clamp-1">${item.title}</h3>
+              <div class="flex items-center justify-between text-[11px] text-slate-400">
+                <span>${item.source || 'مصدر مباشر'}</span>
+                <button onclick="playMedia('${item.id}')" class="px-3 py-1 rounded-full bg-fuchsia-600/80 hover:bg-fuchsia-500 text-white font-bold">تشغيل</button>
+              </div>
             </div>
           </div>
-          <div class="flex gap-2">
-            <button onclick="fillEditForm('${item.id}')" class="px-3 py-1.5 rounded-lg bg-[#9303C5]/30 text-xs font-bold">تعديل</button>
-            <button onclick="deleteAdminItem('${item.id}')" class="px-3 py-1.5 rounded-lg bg-red-600/30 text-red-300 text-xs font-bold">حذف</button>
+        `;
+      }).join('');
+
+      // Render Repos
+      document.getElementById('activeReposList').innerHTML = state.repos.length
+        ? state.repos.map(r => `
+            <div class="glass rounded-2xl p-4 flex items-center justify-between gap-3">
+              <div class="overflow-hidden">
+                <h4 class="font-bold text-sm text-fuchsia-300">${r.name}</h4>
+                <p class="text-xs text-slate-400 truncate" dir="ltr">${r.url}</p>
+              </div>
+              <button onclick="removeRepo('${r.url}')" class="px-3 py-1 rounded-xl bg-red-500/20 text-red-300 text-xs hover:bg-red-500/30">حذف</button>
+            </div>
+          `).join('')
+        : '<div class="glass rounded-2xl p-4 text-sm text-slate-400 col-span-2">لم تقم بإضافة أي مستودع بعد. اضغط على "تفعيل إضافة cs-ar العربية" بالأعلى.</div>';
+
+      // Render Plugins
+      const filteredPlugins = state.plugins.filter(p =>
+        (p.name || '').toLowerCase().includes(query) ||
+        (p.description || '').toLowerCase().includes(query)
+      );
+      document.getElementById('pluginCount').textContent = `${filteredPlugins.length} إضافة مفعّلة`;
+      document.getElementById('pluginsGrid').innerHTML = filteredPlugins.map(p => `
+        <div class="glass rounded-2xl p-4 flex items-start gap-3 hover:border-purple-400/50 transition">
+          <img src="${p.iconUrl || 'https://raw.githubusercontent.com/recloudstream/cloudstream/master/app/src/main/ic_launcher-playstore.png'}"
+               onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=120&q=80'"
+               class="w-12 h-12 rounded-xl object-cover bg-black/40 shrink-0" />
+          <div class="space-y-1 overflow-hidden">
+            <div class="flex items-center gap-2">
+              <h4 class="font-bold text-sm truncate">${p.name || 'إضافة'}</h4>
+              <span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-[10px] text-purple-300">v${p.version || '1'}</span>
+            </div>
+            <p class="text-xs text-slate-300 line-clamp-2">${p.description || 'إضافة محتوى عربي من المستودع'}</p>
+            <div class="text-[11px] text-slate-400 pt-1">اللغة: ${p.language || 'ar'} • الحالة: مفعّلة في المتصفح</div>
           </div>
         </div>
       `).join('');
 
-      try {
-        const repoRes = await fetch(`${API_BASE}/repo-sources`);
-        const repoData = await repoRes.json();
-        const pluginsEl = document.getElementById('adminRepoPlugins');
-        if (repoData.plugins && repoData.plugins.length) {
-          pluginsEl.innerHTML = repoData.plugins.map(p => `
-            <div class="p-2.5 rounded-xl bg-black/40 border border-[#9303C5]/30 text-xs flex justify-between items-center">
-              <span class="font-bold">${p.name || 'مصدر عربي'}</span>
-              <span class="text-green-400">نشط</span>
+      // Render Favorites
+      const favItems = state.items.filter(i => state.favorites.includes(i.id));
+      document.getElementById('favoritesGrid').innerHTML = favItems.length
+        ? favItems.map(item => `
+            <div class="glass rounded-2xl overflow-hidden">
+              <img src="${item.poster}" class="w-full aspect-[2/3] object-cover" />
+              <div class="p-3 flex items-center justify-between">
+                <span class="font-bold text-xs truncate">${item.title}</span>
+                <button onclick="playMedia('${item.id}')" class="px-2.5 py-1 rounded-full bg-fuchsia-600 text-[11px] font-bold">تشغيل</button>
+              </div>
             </div>
-          `).join('');
-        }
-      } catch (e) {}
+          `).join('')
+        : '<p class="text-sm text-slate-400 col-span-full">لا توجد عناصر في المفضلة حالياً.</p>';
     }
 
-    function fillEditForm(id) {
-      const item = allItems.find(i => String(i.id) === String(id));
-      if (!item) return;
-      document.getElementById('admId').value = item.id;
-      document.getElementById('admTitle').value = item.title;
-      document.getElementById('admType').value = item.type;
-      document.getElementById('admRating').value = item.rating;
-      document.getElementById('admPoster').value = item.poster;
-      document.getElementById('admBackdrop').value = item.backdrop || '';
-      document.getElementById('admOverview').value = item.overview || '';
-      document.getElementById('admStreamUrl').value = (item.streams && item.streams[0]) ? item.streams[0].url : '';
-      document.getElementById('admSubUrl').value = (item.subtitles && item.subtitles[0]) ? item.subtitles[0].url : '';
-    }
-
-    async function saveAdminItem() {
-      const payload = {
-        id: document.getElementById('admId').value.trim() || String(Date.now()),
-        title: document.getElementById('admTitle').value.trim(),
-        type: document.getElementById('admType').value,
-        rating: document.getElementById('admRating').value.trim() || '8.5',
-        poster: document.getElementById('admPoster').value.trim(),
-        backdrop: document.getElementById('admBackdrop').value.trim(),
-        overview: document.getElementById('admOverview').value.trim(),
-        streams: document.getElementById('admStreamUrl').value.trim()
-          ? [{ label: 'الجودة الرئيسية', url: document.getElementById('admStreamUrl').value.trim() }]
-          : [],
-        subtitles: document.getElementById('admSubUrl').value.trim()
-          ? [{ label: 'العربية', url: document.getElementById('admSubUrl').value.trim() }]
-          : []
-      };
-
-      if (!payload.title) return alert('يرجى إدخال اسم الفيلم أو المسلسل');
-
-      try {
-        const res = await fetch(`${API_BASE}/admin/save-item`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-secret': adminSecret
-          },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert('تم حفظ العمل ونشره بنجاح!');
-          initApp();
-          loadAdminData();
-        }
-      } catch (e) {
-        allItems = [payload, ...allItems.filter(i => i.id !== payload.id)];
-        renderHome(allItems);
-        loadAdminData();
-        alert('تم الحفظ في المعاينة المحلية بنجاح');
-      }
-    }
-
-    async function deleteAdminItem(id) {
-      if (!confirm('هل أنت متأكد من حذف هذا العمل؟')) return;
-      try {
-        await fetch(`${API_BASE}/admin/delete-item/${id}`, {
-          method: 'DELETE',
-          headers: { 'x-admin-secret': adminSecret }
-        });
-      } catch (e) {}
-      allItems = allItems.filter(i => String(i.id) !== String(id));
-      renderHome(allItems);
-      loadAdminData();
-    }
-
-    initApp();
+    document.getElementById('searchInput').addEventListener('input', renderAll);
+    renderAll();
   </script>
 </body>
 </html>
